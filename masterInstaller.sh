@@ -1,9 +1,10 @@
 #!/bin/bash
 # Puppet Master Install with The Foreman 1.8 on Debian Jessie 8.2
 # Author: John McCarthy
+#Contributor : Yamlal Gotame
 # <http://www.midactstech.blogspot.com> <https://www.github.com/Midacts>
-# Date: 28th of April, 2015
-# Version 1.4
+# Date: 14 of November, 2015
+# Version 1.5
 #
 # To God only wise, be glory through Jesus Christ forever. Amen.
 # Romans 16:27, I Corinthians 15:1-4
@@ -25,6 +26,15 @@ function checkIfInstalled ()
 	#Double check
 	appPkg=`dpkg --get-selections | grep $1`
 }
+function installApp()
+{
+        # Installs the latest version of application send in parameter
+        echo
+       	echo -e '\e[01;34m+++ Installing '$1' ....\e[0m'
+        apt-get install $1 -y
+        echo -e '\e[01;37;42mThe '$1' has been installed!\e[0m'
+}
+
 function puppetRepos()
 {
 	# Gets the latest puppet repos

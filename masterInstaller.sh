@@ -1,5 +1,5 @@
 #!/bin/bash
-# Puppet Master Install with The Foreman 1.5 on Debian Wheezy 7.5
+# Puppet Master Install with The Foreman 1.8 on Debian Jessie 8.2
 # Author: John McCarthy
 # <http://www.midactstech.blogspot.com> <https://www.github.com/Midacts>
 # Date: 28th of April, 2015
@@ -17,13 +17,21 @@ function setHostname()
 		FQDN=`hostname -f`
 		echo -e "127.0.0.1	localhost			localhosts.localdomain	$FQDN\n$IP	$FQDN	$Hostname		puppet" > /etc/hosts
 }
+
+function checkIfInstalled ()
+{
+	# Check if application is installed or not 
+	appInstalled=`which $1`
+	#Double check
+	appPkg=`dpkg --get-selections | grep $1`
+}
 function puppetRepos()
 {
 	# Gets the latest puppet repos
 		echo
 		echo -e '\e[01;34m+++ Getting repositories...\e[0m'
-		wget http://apt.puppetlabs.com/puppetlabs-release-wheezy.deb
-		dpkg -i puppetlabs-release-wheezy.deb
+		wget http://apt.puppetlabs.com/puppetlabs-jessie-wheezy.deb
+		dpkg -i puppetlabs-jessie-wheezy.deb
 		apt-get update
 		echo -e '\e[01;37;42mThe Latest Puppet Repos have been acquired!\e[0m'
 }
@@ -48,8 +56,8 @@ function foremanRepos()
 	# Gets the latest foreman repos
 		echo
 		echo -e '\e[01;34m+++ Getting repositories...\e[0m'
-		echo "deb http://deb.theforeman.org/ wheezy 1.7" > /etc/apt/sources.list.d/foreman.list
-		echo "deb http://deb.theforeman.org/ plugins 1.7" >> /etc/apt/sources.list.d/foreman.list
+		echo "deb http://deb.theforeman.org/ jessie 1.8" > /etc/apt/sources.list.d/foreman.list
+		echo "deb http://deb.theforeman.org/ plugins 1.8" >> /etc/apt/sources.list.d/foreman.list
 		wget -q http://deb.theforeman.org/pubkey.gpg -O- | apt-key add -
 		apt-get update
 		echo -e '\e[01;37;42mThe Latest Foreman Repos have been acquired!\e[0m'
@@ -113,7 +121,25 @@ function doAll()
 		if [ "$yesno" = "y" ]; then
 			setHostname
 		fi
-
+	# Calls the function checkIFInstalled to check Apache2 status
+		echo
+		echo -e "\e[33m=== Check Apache2 Status? [RECOMMENDED] (y/n)\e[0m"
+		read yesno
+		if [ "$yesno" = "y" ]; then
+			checkIfInstalled apache2
+		fi
+	# Calls the function installApp if apache2 is not installed	
+		echo
+		if [ $appInstalled = "" && $appPkg == ""]
+		then
+        		echo -e "\e[33m=== Application Apache2 not installed. Install it? [RECOMMENDED] (y/n)\e[0m"
+			read yesno
+			if [ "$yesno" = "y" ]; then
+				installApp apache2
+			fi
+		fi
+		
+		
 	# Calls the puppetRepos function
 		echo
 		echo -e "\e[33m=== Get Latest Puppet Repos ? (y/n)\e[0m"
